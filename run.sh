@@ -1,1 +1,0 @@
-cc pipex.c pipex_utils.c -g && ./a.out infile "grep total"
