@@ -6,7 +6,7 @@
 /*   By: jade-haa <jade-haa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 11:04:42 by jade-haa          #+#    #+#             */
-/*   Updated: 2023/12/21 16:44:09 by jade-haa         ###   ########.fr       */
+/*   Updated: 2024/02/28 14:13:55 by jade-haa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,55 +27,8 @@ char	**get_path(char **envp)
 	}
 	result_string = ft_split(path_string, ':');
 	if (!result_string)
-		exit(1);
+		exit(EXIT_FAILURE);
 	return (result_string);
-}
-
-char	*copy_flag(char *command)
-{
-	int		i;
-	int		j;
-	char	*flag;
-
-	i = 0;
-	while (command[i] && command[i] != ' ')
-		i++;
-	if (!command[i])
-		return (NULL);
-	i++;
-	j = i;
-	while (command[j])
-		j++;
-	flag = malloc(j * sizeof(char) + 1);
-	if (!flag)
-		return (NULL);
-	j = 0;
-	while (command[i])
-		flag[j++] = command[i++];
-	flag[j] = '\0';
-	return (flag);
-}
-
-char	**set_result(char *str, char *flag)
-{
-	char	**result;
-
-	result = (char **)malloc(3 * sizeof(char *));
-	if (!result)
-	{
-		free(str);
-		free(flag);
-		return (NULL);
-	}
-	result[0] = ft_strdup(str);
-	if (flag)
-		result[1] = ft_strdup(flag);
-	else
-		result[1] = NULL;
-	result[2] = NULL;
-	free(str);
-	free(flag);
-	return (result);
 }
 
 int	length_command(char *command)
@@ -90,17 +43,38 @@ int	length_command(char *command)
 	return (i + 1);
 }
 
+char	**empty_2d_array(char *argv)
+{
+	char	**result;
+
+	(void)argv;
+	result = (char **)malloc(2 * sizeof(char *));
+	result[0] = ft_strdup("argv");
+	result[1] = NULL;
+	return (result);
+}
+
+int	init_fit_command(int *len, char *argv, char **trimmed_command)
+{
+	*len = length_command(argv);
+	if (!argv || !argv[0])
+		return (0);
+	*trimmed_command = (char *)malloc(*len * sizeof(char));
+	if (!trimmed_command)
+		return (0);
+	return (1);
+}
+
 char	**fit_command(char *argv, char **full_path)
 {
 	int		j;
 	char	*str;
-	size_t	len;
+	int		len;
 	char	*trimmed_command;
 	char	*temp;
 
-	len = length_command(argv);
-	trimmed_command = (char *)malloc(len * sizeof(char));
-	if (!trimmed_command)
+	trimmed_command = NULL;
+	if (init_fit_command(&len, argv, &trimmed_command) == 0)
 		return (NULL);
 	ft_strlcpy(trimmed_command, argv, len);
 	j = 0;
@@ -112,9 +86,9 @@ char	**fit_command(char *argv, char **full_path)
 			return (NULL);
 		free(temp);
 		if (access(str, X_OK) == 0)
-			break ;
+			return (set_result(&str, copy_flag(argv), &trimmed_command));
 		free(str);
 	}
 	free(trimmed_command);
-	return (set_result(str, copy_flag(argv)));
+	return (empty_2d_array(argv));
 }

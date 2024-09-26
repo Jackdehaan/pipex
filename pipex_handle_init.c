@@ -6,7 +6,7 @@
 /*   By: jade-haa <jade-haa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 16:00:29 by jade-haa          #+#    #+#             */
-/*   Updated: 2023/12/22 12:11:17 by jade-haa         ###   ########.fr       */
+/*   Updated: 2024/02/28 14:14:15 by jade-haa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,6 @@ int	handle_child_first(pid_t child_pid, t_fd fd, char **envp, char **command)
 	else if (child_pid == 0)
 	{
 		execute_first(fd, command, envp);
-		ft_free_pipes(fd.pipes);
-		return (0);
 	}
 	else
 	{
@@ -43,8 +41,6 @@ int	handle_child_mid(pid_t child_pid, t_fd fd, char **envp, char **command)
 	else if (child_pid == 0)
 	{
 		execute_mid(fd, command, envp);
-		ft_free_pipes(fd.pipes);
-		return (0);
 	}
 	else
 	{
@@ -54,24 +50,32 @@ int	handle_child_mid(pid_t child_pid, t_fd fd, char **envp, char **command)
 	return (1);
 }
 
+int	check_status(int status)
+{
+	if (WIFEXITED(status))
+		return (WEXITSTATUS(status));
+	return (127);
+}
+
 int	handle_child_last(pid_t child_pid, t_fd fd, char **envp, char **command)
 {
+	int	status;
+
+	status = 0;
+	child_pid = fork();
 	if (child_pid < 0)
 	{
 		perror("fork");
-		ft_free_pipes(fd.pipes);
 		return (0);
 	}
 	else if (child_pid == 0)
 	{
 		execute_last(fd, command, envp);
-		ft_free_pipes(fd.pipes);
-		return (0);
 	}
 	else
 	{
-		close(fd.pipes->curr_write);
-		wait(NULL);
+		waitpid(child_pid, &status, 0);
+		return (check_status(status));
 	}
 	return (1);
 }
@@ -83,10 +87,12 @@ t_pipe	*init_pipes_fd(t_pipe *pipes)
 	if (pipes == NULL)
 	{
 		pipes = (t_pipe *)malloc(sizeof(t_pipe));
+		pipes->curr_read = 0;
+		pipes->curr_write = 0;
 		if (pipes == NULL)
 			return (NULL);
 	}
-	if (pipes->curr_write != 0)
+	if (pipes->curr_write)
 	{
 		pipes->prev_read = pipes->curr_read;
 		pipes->prev_write = pipes->curr_write;
@@ -100,15 +106,4 @@ t_pipe	*init_pipes_fd(t_pipe *pipes)
 	pipes->curr_read = fd[0];
 	pipes->curr_write = fd[1];
 	return (pipes);
-}
-
-t_fd	init_fd(char **argv, int argc)
-{
-	t_fd	fd;
-
-	fd.infile_fd = open(argv[1], O_RDONLY);
-	fd.outfile_fd = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0664);
-	if (fd.infile_fd == -1 || fd.outfile_fd == -1)
-		exit(1);
-	return (fd);
 }

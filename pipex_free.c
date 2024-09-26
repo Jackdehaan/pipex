@@ -6,7 +6,7 @@
 /*   By: jade-haa <jade-haa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 10:33:57 by jade-haa          #+#    #+#             */
-/*   Updated: 2023/12/22 11:55:23 by jade-haa         ###   ########.fr       */
+/*   Updated: 2024/02/28 15:40:49 by jade-haa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,15 +25,16 @@ void	ft_free_2d(char **string1, char **string2, int exit_int)
 			string1[i] = NULL;
 			i++;
 		}
-		free(string1);
 	}
+	if (string1)
+		free(string1);
 	if (string2)
 		ft_free_2d(string2, NULL, exit_int);
 	if (exit_int == 1)
-		exit(1);
+		exit(EXIT_SUCCESS);
 }
 
-void	ft_free_3d(char ***mid, int count, char **command, char **full)
+void	ft_free_3d(char ***mid, char **command, char **full, int flag)
 {
 	int	i;
 	int	j;
@@ -41,10 +42,10 @@ void	ft_free_3d(char ***mid, int count, char **command, char **full)
 	i = 0;
 	if (mid)
 	{
-		while (i < count)
+		while (mid[i])
 		{
 			j = 0;
-			while (j < 2)
+			while (mid[i][j])
 			{
 				free(mid[i][j]);
 				j++;
@@ -54,11 +55,10 @@ void	ft_free_3d(char ***mid, int count, char **command, char **full)
 		}
 		free(mid);
 	}
-	if (command)
-	{
+	if (command || full)
 		ft_free_2d(command, full, 0);
-	}
-	exit(1);
+	if (flag)
+		exit(EXIT_FAILURE);
 }
 
 int	ft_free_pipes(t_pipe *pipes)

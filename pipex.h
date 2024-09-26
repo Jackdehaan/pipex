@@ -6,7 +6,7 @@
 /*   By: jade-haa <jade-haa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 16:05:03 by jade-haa          #+#    #+#             */
-/*   Updated: 2023/12/22 12:11:36 by jade-haa         ###   ########.fr       */
+/*   Updated: 2024/02/28 14:17:28 by jade-haa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,19 +46,20 @@ typedef struct t_com
 }			t_com;
 
 char		*ft_strjoin(char *s1, char *s2);
+int			length_2d(char **flag);
 size_t		ft_strlen(char *s);
 char		*ft_strnstr(char *big, char *little, size_t len);
 char		**ft_split(char const *s, char c);
 char		*ft_strjoin(char *s1, char *s2);
 size_t		ft_strlcpy(char *dest, const char *src, size_t size);
 char		**fit_command(char *argv, char **full_path);
-char		*copy_flag(char *command);
+char		**copy_flag(char *command);
 char		**get_path(char **envp);
 void		ft_bzero(void *s, size_t n);
 void		*ft_calloc(size_t nmemb, size_t size);
 int			ft_strncmp(char *s1, char *s2, size_t n);
 void		ft_free_mid(char ***mid, int mid_count);
-void		ft_free_3d(char ***mid, int count, char **command, char **full);
+void		ft_free_3d(char ***mid, char **command, char **full, int flag);
 void		ft_free_2d(char **string1, char **string2, int exit_int);
 int			ft_free_pipes(t_pipe *pipes);
 int			handle_child_first(pid_t child_pid, t_fd fd, char **envp,
@@ -78,5 +79,7 @@ void		execute_mid(t_fd fd, char **first, char **envp);
 void		execute_last(t_fd fd, char **first, char **envp);
 char		**ft_split(char const *s, char c);
 char		*ft_strdup(char *s);
+char		**set_result(char **str, char **flag, char **trimmed_line);
+char		**copy_flag(char *command);
 
 #endif
